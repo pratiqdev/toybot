@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module":"ES2022",
+    "target": "ES2022",
+    // "lib": [ "es2020"],
+    "rootDir": ".",
+    "outDir": "dist",
+    "allowSyntheticDefaultImports": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": false,
+    "declaration": false,
+    // "jsx": "react",
+    "skipLibCheck": true,
+    "removeComments": false
+  },
+  "files": [
+    "src/index.ts"
+  ],
+  "compileOnSave": false,
+  "buildOnSave": false
+}

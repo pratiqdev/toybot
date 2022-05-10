@@ -1,0 +1,16 @@
+# DIRECTORIES
+tests/
+node_modules
+src/
+gulp/
+.github/
+changelogs/
+
+# PACKAGE FILES
+*.lock
+.gitignore
+TODO.md
+
+
+# BUILD TOOLS
+tsconfig.json
