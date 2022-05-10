@@ -110,4 +110,31 @@ class LogItems{
 
 const items = new LogItems()
 
+export const WARNING = (...msg:any) => {
+    items.yellow('')
+    items.yellow(items.div())
+    items.yellow('| WARNING:')
+    msg.forEach((x:string) => items.yellow(`|   ${x}`))
+    items.yellow(items.div())
+    items.yellow('')
+}
+
+export const FATAL = (...msg:any) => {
+    items.RED('')
+    items.RED(items.div())
+    items.RED('| ERROR:')
+    msg.forEach((x:string) => items.RED(`|   ${x}`))
+    items.RED(items.div())
+    items.RED('')
+    process.exit(0)
+}
+
+export const LOG = (...msg:any) => {
+    msg.forEach((x:string) => items.BLUE(x))
+}
+
+export const DOCUMENTATION_LINK = 'https://www.npmjs.com/package/toybot'
+
+
+
 export default items

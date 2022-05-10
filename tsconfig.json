@@ -4,7 +4,7 @@
     "module":"ES2022",
     "target": "ES2022",
     // "lib": [ "es2020"],
-    "rootDir": ".",
+    // "rootDir": ".",
     "outDir": "dist",
     "allowSyntheticDefaultImports": true,
     "suppressImplicitAnyIndexErrors": true,

@@ -1,6 +1,13 @@
 
 import toybot from './index.js'
 
+const helpMsg = 
+`HELP MESSAGE:
+This is a help message.
+It will help you.
+Maybe.
+`
+
 // toybot({})
 toybot({
     guild: '965727814676516906',                    
@@ -39,5 +46,21 @@ toybot({
             }
         }
 
-    ]
+    ],
+    commandObj: {
+        'obj-help': (t) => t.reply(helpMsg),
+        'obj-prefix': (t) => t.reply('obj prefix test'),
+        'obj-slash': {
+            options: [
+                {
+                    name: 'testvalue',
+                    description: 'Provides a simple string argument as en example',
+                    type: 'string',
+                }
+            ],
+            command: (toybot) => {
+                toybot.reply('toybot test command!')
+            }
+        }
+    }
 })

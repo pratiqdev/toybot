@@ -32,7 +32,7 @@ member.roles.cache.some(role => role.name === 'Mod');
 - reconsider the inclusion of partials and rely only on intents
 
 - consider using an object instead of an array for commands:
-  > this means no roles for prefix commands
+  > this means no roles for prefix commands! seems fine...
 
 ```js
 commands: {
@@ -40,6 +40,7 @@ commands: {
     'prefix-command-2': (msg) => {},
     'help-slash':{
         description: 'List the commands, options and usage',
+        roles: [],
         options: [],
         command: (intr) => {}
     }
