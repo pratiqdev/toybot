@@ -19,11 +19,14 @@ export interface I_CommandStruct {
 }
 
 export interface I_ToybotConfig {
+    title: string;
+    description: string;
+    documentation?: string;
     client: string;
     guild: string,
     commands: I_CommandStruct[];
     commandObj: any;
-    intents?: string[];
+    intents?: any[];
     partials?: string[];
-    prefix?: string;
+    prefix: string;
 }

@@ -7,10 +7,11 @@ import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
 import * as TYPES from './types.js'
 import log, { WARNING, FATAL, LOG } from './logItems.js'
-import { prepPackCommand, prepPackConfig, prepPackCommandOption, prepHelpCommand } from './preps.js'
+import { prepPackConfig, prepPackCommandOption, prepHelpCommand, prepPrefixCommand, prepSlashCommand } from './preps.js'
 import { generateSlashCommandOptions } from './slashOptions.js'
 import { handleMessage } from './handleMessage.js'
 import { handleInteraction } from './handleInteraction.js'
+import { assembleDefaultHelpMessage } from './defaultHelp.js'
 
 dotenv.config()
 
@@ -28,64 +29,67 @@ try{
     prepPackConfig(PACK)
 
 
-    // Check if the pack contain a custom help command
-    const hasCustomHelpCommand = PACK.commands.some(cmd => 
-        cmd.name.toLowerCase() === 'help'
-    )
 
-    // Create a new client instance
-    const intents:any = PACK.intents || ['GUILDS']
-    const partials:any = PACK.partials || []
-    PACK.intents && log.BLUE(`| Setting intents: [${intents.join(', ')}]`)
-    PACK.partials && log.BLUE(`| Setting partials: [${partials.join(', ')}]`)
-
-    const client = new Client({ intents, partials });
-    // Create a new rest instance
+    const client = new Client({ intents: PACK.intents });
     let rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN);
 
-    const HELP_COMMAND = null
 
-
-    //+ Run all setup functions when ToyBot starts
     client.once('ready', () => {
         log.BLUE('| Generating commands...')
         
-        //+ Create an array of slash commands using SlashCommandBuilder constructor 
         const commands: any = []
 
-
-
-        
-        log.WHITE(log.div())
-        Object.entries(PACK.commandObj).forEach((packCommand: any) => {
-            console.log(packCommand)
-        })
-        log.WHITE(log.div()
-        
-        
-        
-        
-        )
-        PACK.commands.forEach((packCommand: TYPES.I_CommandStruct, packCommandIndex:number) => {
-            
-            // do not create a command object for items with a prefix
-            // prefixed commands can only be accessed by using the prefix
-            if(!('useSlash' in packCommand) || packCommand.useSlash !== true) return
-
-            prepPackCommand(PACK, packCommand, packCommandIndex)
-
-            if(packCommand && 'options' in packCommand && packCommand.options!.length > 0){
-
+        if(!(
+            'help' in PACK.commands
+            || 'Help' in PACK.commands
+            || 'HELP' in PACK.commands
+        )){
+            const foundSlashTypeCommand = Object.entries(PACK.commands).some(cmd => typeof cmd[1] !== 'function' )
+            // FATAL(`Found slash type command: ${foundSlashTypeCommand}`)
+    
+            if(foundSlashTypeCommand){
+                LOG(`| Creating "/help" command...`)
+                PACK.commands['help'] = {
+                    description: `${PACK.title} - Help with commands, options and usage`,
+                    // command: (ctx) => ctx.reply(assembleDefaultHelpMessage(PACK))
+                    command: (ctx) => ctx.reply(assembleDefaultHelpMessage(PACK))
+                }
+            }else{
+                LOG(`| Creating "${PACK.prefix}help" command...`)
+                PACK.commands['help'] = (ctx) => ctx.reply(assembleDefaultHelpMessage(PACK))
                 
-                // create a new command instance
+            }
+        }
+
+        // prepHelpCommand(PACK, commands)
+
+        Object.entries(PACK.commands).forEach((packCommand: any, packCommandIndex: number) => {
+            let commandName = packCommand[0]
+            let commandObject = packCommand[1]
+
+            //! show the list of slash-commands and pack.commands
+            // console.log('='.repeat(60))
+            // console.log(`packCommand: ${packCommand}`)
+            // console.log(`slash commands: ${commands.length}`, commands)
+            // console.log(`pack commands: ${Object.entries(PACK.commands).length}`, PACK.commands)
+            // console.log('='.repeat(60))
+
+            if(typeof commandObject === 'function'){
+                prepPrefixCommand(PACK, commandName, commandObject)
+                // log.green(`prefix: ${commandName}`)
+
+            }else{
+                prepSlashCommand(PACK, commandName, commandObject)
+                // log.green(`slash: ${commandName}`)
+
                 const SLASH_COMMAND = new SlashCommandBuilder()
 
-                SLASH_COMMAND.setName(packCommand.name)
-                SLASH_COMMAND.setDescription(packCommand.description || packCommand.name)
+                SLASH_COMMAND.setName(commandName)
+                SLASH_COMMAND.setDescription(commandObject.description || commandName)
 
 
 
-                packCommand.options!.forEach((packCommandOption: TYPES.I_CommandOption, packCommandOptionIndex:number) => {
+                packCommand.options && packCommand.options!.forEach((packCommandOption: TYPES.I_CommandOption, packCommandOptionIndex:number) => {
                     prepPackCommandOption(PACK, packCommand, packCommandOption, packCommandOptionIndex)
                     generateSlashCommandOptions(SLASH_COMMAND, packCommandOption)
                 })
@@ -94,25 +98,23 @@ try{
 
                 SLASH_COMMAND.toJSON()
                 commands.push(SLASH_COMMAND)
-            }else{
-                let SLASH_COMMAND = new SlashCommandBuilder()
-                    SLASH_COMMAND.setName(packCommand.name)
-                    SLASH_COMMAND.setDescription(packCommand.description || packCommand.name)
-                    SLASH_COMMAND.toJSON()
-                commands.push(SLASH_COMMAND)
+
             }
         })
 
-        prepHelpCommand(PACK, hasCustomHelpCommand)
+
 
 
         LOG('| Registering commands...')
         rest.put(Routes.applicationGuildCommands(PACK.client, PACK.guild), { body: commands })
             .then(() => LOG(
-                '| Commands registered',
+                '|',
                 `| Setup successful`
             ))
-        .catch(console.error)
+        .catch((err:any) => {
+            log.RED('Error registering commands:')
+            console.error(err)
+        })
         .finally(()=>{
             LOG(log.div())
             LOG('')
@@ -120,6 +122,8 @@ try{
             log.GREEN('| TOYBOT ACTIVE')
             log.GREEN(log.div())
         })
+
+
 
         
 
@@ -130,7 +134,7 @@ try{
 
     // use a custom prefix
     client.on('messageCreate', async (message: any) => {
-        handleMessage(PACK, message, hasCustomHelpCommand)
+        handleMessage(PACK, message)
     })
 
     // use the build in slash commands
@@ -141,6 +145,7 @@ try{
     // Login to Discord with your client's token
     client.login(process.env.BOT_TOKEN);
 }catch(err){
+    FATAL(err)
     console.log(err)
 }
 }

@@ -1,27 +1,22 @@
-export const handleMessage = (PACK, message, hasCustomHelpCommand) => {
+import utilities from "./utilities.js";
+
+export const handleMessage = (PACK, message) => {
 
     if (message.author.bot) return;
     if(!PACK.prefix || PACK.prefix === '' || PACK.prefix === '/') return;
 
-
     if (message.content.startsWith(PACK.prefix) && message.content.length > PACK.prefix.length) {
+        message.utilities = utilities
+        message.message = message.content
+        message.prefix = PACK.prefix
         const args = message.content.slice(PACK.prefix.length).split(' ');
         const command = args.shift();
+        message.command = command
+        message.args = args
 
-        if(!hasCustomHelpCommand && command.toLowerCase() === 'help'){
-            message.reply('HHHHHELPP!!!')
+        if(command in PACK.commands){
+            PACK.commands[command](message)
         }
 
-        PACK.commands.forEach(cmd => {
-            if(cmd.name === command){
-                (async()=>{
-                    // interaction.values = {}
-                    // interaction.options._hoistedOptions.forEach(opt => {
-                    //     interaction.values[opt.name] = opt.value
-                    // })
-                    await cmd.command(message)
-                })()
-            }
-        })
-
-    }}
+    }
+}
