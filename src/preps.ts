@@ -19,6 +19,20 @@ export const prepPackConfig = (PACK:any) => {
         DOCUMENTATION_LINK,
     ]
     const suggestedPrefixList = [
+        '!',
+        '-',
+        '$',
+        '?',
+        '%',
+        '=',
+    ]
+    const disallowedPrefixList = [
+        '/',
+        '*',
+        '@',
+        '#'
+    ]
+    const suggestedPrefixDefinitions = [
         '! (exclamation)',
         '- (hyphen)',
         '$ (dollar)',
@@ -26,12 +40,13 @@ export const prepPackConfig = (PACK:any) => {
         '% (percent)',
         '= (equal)',
     ]
-    const disallowedPrefixList = [
+    const disallowedPrefixDefenitions = [
         '/ (slash - slash commands)',
         '* (asterisk - reserved)',
         '@ (at - user mentions)',
         '# (hash - channel mentions)'
     ]
+    // validate token
     if(!process.env.BOT_TOKEN){
         FATAL(
             `Discord requires a "bot token" to interact with its API`,
@@ -41,21 +56,20 @@ export const prepPackConfig = (PACK:any) => {
             `unauthorized users from using this token`
         )
     }
-    
+
+    // validate pack content
     if(!PACK || Object.entries(PACK).length === 0){
         FATAL(
             `No config object was provided`,
             ...validConfigDirective
         )
     }
-    
     if(!PACK.client){
         FATAL(
             `No client id (client) was provided`,
             ...validConfigDirective,
         )
     }
-    
     if(!PACK.guild){
         FATAL(
             `No guild id (guild) was provided`,
@@ -74,27 +88,30 @@ export const prepPackConfig = (PACK:any) => {
             ...validConfigDirective
         )
     }
+
+    // validate prefix
     if(!PACK.prefix){
         FATAL(
             `No command prefix (prefix) was provided`,
             ...validConfigDirective
-        )
-    }else if(!suggestedPrefixList.includes(PACK.prefix)){
-        WARNING(
-            `@ config.prefix "${PACK.prefix}" is not recommended`,
-            `Use one of the following characters:`,
-            suggestedPrefixList.map((x) => `\n|   ${x}`).join(''),
         )
     }
     else if(disallowedPrefixList.includes(PACK.prefix)){
         FATAL(
             `@ config.prefix "${PACK.prefix}" is not allowed`,
             'The following characters are not allowed:',
-            disallowedPrefixList.map((x) => `\n|  ${x}`).join(''),
+            disallowedPrefixDefenitions.map((x) => `\n|     ${x}`).join(''),
             '',
             `Use one of the following characters:`,
-            suggestedPrefixList.map((x) => `\n|  ${x}`).join(''),
+            suggestedPrefixDefinitions.map((x) => `\n|     ${x}`).join(''),
 
+        )
+    }
+    else if(!suggestedPrefixList.includes(PACK.prefix)){
+        WARNING(
+            `@ config.prefix "${PACK.prefix}" is not recommended`,
+            `Use one of the following characters:`,
+            suggestedPrefixDefinitions.map((x) => `\n|     ${x}`).join(''),
         )
     }
     if(!PACK.intents || PACK.intents.length === 0){
@@ -105,6 +122,7 @@ export const prepPackConfig = (PACK:any) => {
         )
         PACK.intents = ['GUILD']
     }
+
     // validate intents
     else if(PACK.intents.length > 0){
         let validIntents = [
@@ -142,6 +160,7 @@ export const prepPackConfig = (PACK:any) => {
         })
     }
 
+
     LOG(
         `| TITLE:    ${PACK.title}`,
         // `| DESCRIPTION: ${PACK.description}`,
@@ -176,6 +195,16 @@ export const prepSlashCommand = (PACK, commandName, commandObject) => {
         WARNING(
             `@ command "${commandName}"`,
             `Command names should be 20 characters or fewer`,
+        )
+    }
+    if(!/^[a-z0-9-_]*$/.test(commandName)){
+        FATAL(
+            `@ command ""${commandName}"`,
+            `Command names can only contain the following characters:`,
+            `  - (a-z) lowercase letters`,
+            `  - (0-9) numbers`,
+            `  - (-) hyphens`,
+            `  - (_) underscores`
         )
     }
     if(!commandObject.description){
@@ -216,13 +245,36 @@ export const prepPrefixCommand = (PACK, commandName, commandObject) => {
             `Command names should be 20 characters or fewer`,
         )
     }
+    if(!/^[a-z0-9-_]*$/.test(commandName)){
+        FATAL(
+            `@ command ""${commandName}"`,
+            `Command names can only contain the following characters:`,
+            `  - (a-z) lowercase letters`,
+            `  - (0-9) numbers`,
+            `  - (-) hyphens`,
+            `  - (_) underscores`
+        )
+    }
 }
 
 
 
 export const prepPackCommandOption = (PACK, packCommand, packCommandOption, packCommandOptionIndex) => {
     if(!packCommandOption.name){
-        FATAL(`ToyBot command "${packCommand.name}" option [${packCommandOptionIndex}] missing "name"`)
+        FATAL(
+            `@ command "${packCommand.name}" option [${packCommandOptionIndex}]`,
+            `Command missing field "name"`
+            )
+    }
+    if(!/^[a-z0-9-_]*$/.test(packCommandOption.name)){
+        FATAL(
+            `@ command "${packCommand.name}" option "${packCommandOption.name}"`,
+            `Command option names can only contain the following characters:`,
+            `  - (a-z) lowercase letters`,
+            `  - (0-9) numbers`,
+            `  - (-) hyphens`,
+            `  - (_) underscores`
+        )
     }
     if(!packCommandOption.description){
         WARNING(

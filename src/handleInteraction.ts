@@ -1,5 +1,6 @@
 import { WARNING, LOG } from "./logItems.js";
 import utilities from './utilities.js'
+import { catchCommand } from './catchCommand.js'
 
 export const handleInteraction = (PACK, interaction) => {
     if (!interaction.isCommand()) return;
@@ -7,7 +8,10 @@ export const handleInteraction = (PACK, interaction) => {
 
     if(interaction.commandName in PACK.commands){
         const CURRENT_COMMAND = PACK.commands[interaction.commandName]
-        interaction.utilities = utilities
+        const config = { ...PACK }
+        config.commands = Object.entries(PACK.commands).length
+        interaction.config  = config
+        interaction.util = utilities
         interaction.values = {}
         interaction.options._hoistedOptions.forEach((opt: any) => {
             interaction.values[opt.name] = opt.value
@@ -36,13 +40,16 @@ export const handleInteraction = (PACK, interaction) => {
                 }
             })
             if(ALLOWED){
-                CURRENT_COMMAND.command(interaction)
+                catchCommand(PACK, interaction, CURRENT_COMMAND.command)
+                // CURRENT_COMMAND.command(interaction)
             }else{
                 interaction.reply(ROLE_DENIAL_REPLACED || DEFAULT_DENIAL_MSG)
             }
         }else{
             // console.log(`NO ROLES REQUIRED: "${interaction.commandName}"`)
-            CURRENT_COMMAND.command(interaction)
+            // CURRENT_COMMAND.command(interaction)
+            catchCommand(PACK, interaction, CURRENT_COMMAND.command)
+
         }
     }
 

@@ -29,4 +29,5 @@ export interface I_ToybotConfig {
     intents?: any[];
     partials?: string[];
     prefix: string;
+    testMode: boolean;
 }

@@ -1,3 +1,33 @@
+const parseType = (type:string) => {
+    let value
+
+    switch(type){
+        case 's':
+        case 'str':
+        case 'string': value = 'string'; break;
+        case 'i':
+        case 'int':
+        case 'integer': value = 'integer'; break;
+        case 'n':
+        case 'num':
+        case 'number': value = 'number'; break;
+        case 'b':
+        case 'bool':
+        case 'boolean': value = 'boolean'; break;
+        case 'r':
+        case 'role': value = 'role'; break;
+        case 'u':
+        case 'user': value = 'user'; break;
+        case 'm':
+        case 'mention':
+        case 'mentionable': value = 'mentionable'; break;
+        
+        
+    }
+
+    return value
+}
+
 export const assembleDefaultHelpMessage = (PACK) => {
     
     let helpMsg = ''
@@ -41,7 +71,7 @@ if('options' in x[1] && x[1].options.length > 0){
 x[1].options.sort((a,b) => a.required ? -1 : 1 ).forEach(opt => {
     helpMsg += 
 `> 
-> __${opt.name}__ <${opt.type}> ${opt.required ? '(required)' : ''}
+> __${opt.name}__ <${parseType(opt.type)}> ${opt.required ? '(required)' : ''}
 > *${opt.description}*
 `
 })
@@ -60,7 +90,8 @@ helpMsg +=
         `
         prefixCommands.forEach((x,i)=>{
 helpMsg += 
-`> **\`${PACK.prefix}${x[0]}\`**`
+`
+**\`${PACK.prefix}${x[0]}\`**`
         })
     }
 

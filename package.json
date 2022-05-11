@@ -1,15 +1,14 @@
 {
   "name": "toybot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "compile":"rm -rf dist && tsc",
-    "bump":"--no-git-tag version patch",
-    "pub":"--no-git-tag version patch && npm publish --access public",
-    "dev":"node test.js"
-
+    "compile": "rm -rf dist && tsc",
+    "bump": "npm version --no-git-tag patch",
+    "pub": "npm run bump && npm publish --access public",
+    "dev": "node test.js"
   },
   "keywords": [],
   "author": "",
@@ -17,9 +16,11 @@
   "dependencies": {
     "@discordjs/builders": "^0.13.0",
     "@discordjs/rest": "^0.4.1",
+    "axios": "^0.27.2",
     "discord-api-types": "^0.32.1",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
+    "require-from-url": "^3.1.3",
     "typescript": "^4.6.4"
   }
 }

@@ -1,5 +1,5 @@
 
-export const generateSlashCommandOptions = (SLASH_COMMAND, packCommandOption) => {
+export const generateSlashCommandOptions = (SLASH_COMMAND, commandName, packCommandOption) => {
     switch(packCommandOption.type.toLowerCase()){
         case 'i':
         case 'int':
@@ -29,6 +29,34 @@ export const generateSlashCommandOptions = (SLASH_COMMAND, packCommandOption) =>
         case 'bool':
         case 'boolean':
             SLASH_COMMAND.addBooleanOption((OPTION:any) => {
+                OPTION.setName(packCommandOption.name)
+                OPTION.setDescription(packCommandOption.description || packCommandOption.name)
+                    packCommandOption.required    && OPTION.setRequired(packCommandOption.required)
+                return OPTION
+            })
+        break;
+        case 'u':
+        case 'user':
+            SLASH_COMMAND.addUserOption((OPTION:any) => {
+                OPTION.setName(packCommandOption.name)
+                OPTION.setDescription(packCommandOption.description || packCommandOption.name)
+                    packCommandOption.required    && OPTION.setRequired(packCommandOption.required)
+                return OPTION
+            })
+        break;
+        case 'r':
+        case 'role':
+            SLASH_COMMAND.addRoleOption((OPTION:any) => {
+                OPTION.setName(packCommandOption.name)
+                OPTION.setDescription(packCommandOption.description || packCommandOption.name)
+                    packCommandOption.required    && OPTION.setRequired(packCommandOption.required)
+                return OPTION
+            })
+        break;
+        case 'm':
+        case 'mention':
+        case 'mentionable':
+            SLASH_COMMAND.addMentionableOption((OPTION:any) => {
                 OPTION.setName(packCommandOption.name)
                 OPTION.setDescription(packCommandOption.description || packCommandOption.name)
                     packCommandOption.required    && OPTION.setRequired(packCommandOption.required)

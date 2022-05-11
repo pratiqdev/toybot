@@ -9,7 +9,6 @@
 
 - Add config option to reduce logs to console (FATALs still show)
   
-- Pass the original config object to ctx object (delete commands tuple)
 ## Testing
 
 - create a bunch of commands that use all key:values in the toybot return object

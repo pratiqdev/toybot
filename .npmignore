@@ -2,7 +2,6 @@
 tests/
 node_modules
 src/
-gulp/
 .github/
 changelogs/
 
@@ -10,6 +9,12 @@ changelogs/
 *.lock
 .gitignore
 TODO.md
+NOTES.md
+test.js
+node-test.js
+.env
+.env.*
+*.env
 
 
 # BUILD TOOLS
