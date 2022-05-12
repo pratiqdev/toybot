@@ -264,7 +264,7 @@ toybot({
 
                 
 
-                let table = "API Response:\n"
+                let table = "API Response:\n"   
 
                 data.filter((x,i) => i < 2000 ).forEach(x => {
                     table += `\n${x.id} - ${x.title}`
@@ -272,6 +272,26 @@ toybot({
 
 
                 await ctx.editReply(table)
+            }
+        },
+
+
+
+        // SimpleStore test
+        'store-test': {
+            description: 'simple test of a config object',
+            command: async (ctx) => {
+                const { store, wait } = ctx.utils
+
+                await ctx.reply('Testing store');
+
+                store.set('test_a', 1234)
+                
+                await wait(2000);
+                await ctx.editReply(store.get('test_a'));
+
+
+
             }
         },
     }

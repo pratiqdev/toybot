@@ -40,6 +40,8 @@ try{
     const client = new Client({ intents: PACK.intents });
     let rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN);
 
+    console.log('created rest object', rest)
+
 
     client.once('ready', () => {
         log.BLUE('| Generating commands...')
@@ -112,8 +114,7 @@ try{
                 `| Setup successful`
             ))
         .catch((err:any) => {
-            log.RED('Error registering commands:')
-            console.error(err)
+            FATAL('Could not register commands', err)
         })
         .finally(()=>{
             LOG(log.div())
@@ -121,6 +122,12 @@ try{
             log.GREEN(log.div())
             log.GREEN(`| TOYBOT ACTIVE ${PACK.testMode ? '(TEST MODE)' : ''}`)
             log.GREEN(log.div())
+
+            // console.log('ALL COMMANDS:')
+            // console.log(PACK.commands)
+
+            // console.log('SLASH COMMANDS:')
+            // console.log(commands)
         })
 
 
@@ -133,11 +140,12 @@ try{
     });
 
 
-    let lastCtxObject = null
+    // let lastCtxObject = null
 
     // use a custom prefix
     client.on('messageCreate', async (message: any) => {
-        lastCtxObject = message
+        // lastCtxObject = message
+        console.log('message??', message.content)
 
         if (
             'testMode' in PACK 
@@ -157,27 +165,29 @@ try{
 
     // use the build in slash commands
     client.on('interactionCreate', async (interaction: any) => {
-        lastCtxObject = interaction
+        console.log('interaction??')
+
+        // lastCtxObject = interaction
         handleInteraction(PACK, interaction)
     });
 
-    process.on('unhandledRejection', async (error:any) => {
-        log.RED('PROCESS ERROR: Unhandled promise rejection:\n\n')
-        console.error(error)
+    // process.on('unhandledRejection', async (error:any) => {
+    //     log.RED('PROCESS ERROR: Unhandled promise rejection:\n\n')
+    //     console.error(error)
         
-        if(PACK.testMode === true){
+    //     if(PACK.testMode === true){
             
-            try{
-                log.RED('PROCESS ERROR: Unhandled promise rejection:\n\n')
-                console.error(error);
+    //         try{
+    //             log.RED('PROCESS ERROR: Unhandled promise rejection:\n\n')
+    //             console.error(error);
 
-                await lastCtxObject.channel.send("```ERROR:\n\n" + error + "\n\nErrors are likely to crash the bot.\nFix them while the bot is in test mode.\nThis error message will only appear if testMode is set to true.\nThis error message may not have originated in this channel or from the previous message/command.```")
-            }catch(err){
-                log.RED('PROCESS ERROR: Unhandled promise rejection + channel reply:\n\n')
-                console.error(err)
-            }
-        }
-    });
+    //             await lastCtxObject.channel.send("```ERROR:\n\n" + error + "\n\nErrors are likely to crash the bot.\nFix them while the bot is in test mode.\nThis error message will only appear if testMode is set to true.\nThis error message may not have originated in this channel or from the previous message/command.```")
+    //         }catch(err){
+    //             log.RED('PROCESS ERROR: Unhandled promise rejection + channel reply:\n\n')
+    //             console.error(err)
+    //         }
+    //     }
+    // });
 
     
     

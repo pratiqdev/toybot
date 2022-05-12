@@ -5,6 +5,8 @@ import { catchCommand } from './catchCommand.js'
 export const handleInteraction = (PACK, interaction) => {
     if (!interaction.isCommand()) return;
 
+    console.log(`Run interaction command: ${interaction.commandName}`)
+
 
     if(interaction.commandName in PACK.commands){
         const CURRENT_COMMAND = PACK.commands[interaction.commandName]
@@ -40,6 +42,7 @@ export const handleInteraction = (PACK, interaction) => {
                 }
             })
             if(ALLOWED){
+                console.log(`Run command: ${CURRENT_COMMAND}`)
                 catchCommand(PACK, interaction, CURRENT_COMMAND.command)
                 // CURRENT_COMMAND.command(interaction)
             }else{
