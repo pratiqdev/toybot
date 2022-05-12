@@ -2,6 +2,10 @@
 
 ## Urgent
 
+- replace SimpleStore with real db
+
+- add secondary commands array `globalCommands` (`commands` will be guild only commands)
+
 - commands that use `bot.title.toLowerCase()` should have spaces replaced with hyphens
   
 - store WARNINGs in array that can be looped over when setup is done. 

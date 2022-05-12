@@ -1,7 +1,8 @@
+// import { MessageEmbed } from "discord.js";
+// import { WARNING, LOG, DEBUG } from './dist/logItems.js'
 
 import toybot from './index.js'
 
-import { WARNING, LOG, DEBUG } from './dist/logItems.js'
 
 
 
@@ -134,7 +135,7 @@ toybot({
             description: 'simple test of a delayed response',
             command: async (ctx) => {
                 await ctx.deferReply();
-                await ctx.utils.wait(4000);
+                await ctx.utils.delay(4000);
                 await ctx.editReply('Delayed response!');
             }
         },
@@ -144,7 +145,7 @@ toybot({
             description: 'simple test of a delayed ephemeral response',
             command: async (ctx) => {
                 await ctx.deferReply({ ephemeral: true });
-                await ctx.utils.wait(4000);
+                await ctx.utils.delay(4000);
                 await ctx.editReply('Delayed response!');
             }
         },
@@ -155,7 +156,7 @@ toybot({
             description: 'simple test of a delayed custom response',
             command: async (ctx) => {
                 await ctx.deferReply('Deferring reply custom text...');
-                await ctx.utils.wait(4000);
+                await ctx.utils.delay(4000);
                 await ctx.editReply('Delayed response!');
             }
         },
@@ -165,15 +166,15 @@ toybot({
             description: 'simple test of an edited reply',
             command: async (ctx) => {
                 await ctx.reply('custom ctx.utils.waiting...');
-                await ctx.utils.wait(1000);
+                await ctx.utils.delay(1000);
                 await ctx.editReply('edit');
-                await ctx.utils.wait(1000);
+                await ctx.utils.delay(1000);
                 await ctx.editReply('message');
-                await ctx.utils.wait(1000);
+                await ctx.utils.delay(1000);
                 await ctx.editReply('within');
-                await ctx.utils.wait(1000);
+                await ctx.utils.delay(1000);
                 await ctx.editReply('15');
-                await ctx.utils.wait(1000);
+                await ctx.utils.delay(1000);
                 await ctx.editReply('minutes');
                 
             }
@@ -184,7 +185,7 @@ toybot({
             description: 'simple test of a delayed follow up',
             command: async (ctx) => {
                 await ctx.reply('Primary reply');
-                await ctx.utils.wait(3000);
+                await ctx.utils.delay(3000);
                 await ctx.followUp('Follow up reply!');
             }
         },
@@ -199,11 +200,11 @@ toybot({
 
                 await ctx.reply(msg);
                 
-                await ctx.utils.wait(3000);
+                await ctx.utils.delay(3000);
                 msg += `\nnew text!!`
                 await ctx.editReply(msg);
 
-                await ctx.utils.wait(3000);
+                await ctx.utils.delay(3000);
                 msg += `\nmore text!!`
                 await ctx.editReply(msg);
             }
@@ -236,7 +237,7 @@ toybot({
             command: async (ctx) => {
 
                 await ctx.deferReply()
-                await ctx.utils.wait(1000)
+                await ctx.utils.delay(1000)
 
                 let { data } = await ctx.util.get('https://jsonplaceholder.typicode.com/todos')
 
@@ -260,7 +261,7 @@ toybot({
             command: async (ctx) => {
 
                 await ctx.deferReply()
-                await ctx.utils.wait(1000)
+                await ctx.utils.delay(1000)
 
                 let { data } = await ctx.util.get('https://jsonplaceholder.typicode.com/todos')
 
@@ -278,62 +279,5 @@ toybot({
         },
 
 
-
-        // SimpleStore test
-        // Replies accept a single argument of non-empty string.
-        // Store may respond with non-string types or empty string,
-        // User must covert values with `.toSting()` or `JSON.stringify()`
-        'store-test': {
-            description: 'simple test of SimpleStore',
-            command: async (ctx) => {
-                const { store, wait } = ctx.utils
-                let res
-
-                await ctx.reply('Testing store');
-                await wait();
-
-                await store.set('test_a', 1234)
-                await ctx.editReply('Set store tuple');
-                await wait();
-                
-                res = await store.get('test_a')
-                await ctx.editReply(res.message);
-                await wait();
-                await ctx.editReply(JSON.stringify(res.value));
-                
-                await wait();
-                
-                res = await store.getAll()
-                await ctx.editReply(res.message);
-                await wait();
-                await ctx.editReply(JSON.stringify(res.value));
-                
-                // console.log(`message: ${res.message}`)
-                // console.log(`value: ${res.value}`)
-                
-            }
-        },
-
-
-        // SimpleStore fillStore test
-        'store-test-after-fill': {
-            description: 'simple test of SimpleStore fill command',
-            command: async (ctx) => {
-                const { store, wait } = ctx.utils
-                let res
-                try{
-
-                    await ctx.reply('Testing store after fill...');
-                    
-                    await wait();
-                    
-                    res = await store.get('some-data')
-                    await ctx.editReply(res.success ? JSON.stringify(res.value) : res.message);
-                }catch(err){
-                    await ctx.editReply(JSON.stringify(err));
-                }
-                
-            }
-        },
     }
 })

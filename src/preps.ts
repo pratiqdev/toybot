@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import log, {WARNING, FATAL, LOG, DOCUMENTATION_LINK} from './logItems.js'
+import {WARNING, FATAL, LOG, DOCUMENTATION_LINK} from './logItems.js'
 
 export const prepPackConfig = (PACK:any) => {
     const validConfigDirective = [
@@ -91,7 +91,7 @@ export const prepPackConfig = (PACK:any) => {
 
     // validate prefix
     if(!PACK.prefix){
-        FATAL(
+        WARNING.create(
             `No command prefix (prefix) was provided`,
             ...validConfigDirective
         )
@@ -108,14 +108,14 @@ export const prepPackConfig = (PACK:any) => {
         )
     }
     else if(!suggestedPrefixList.includes(PACK.prefix)){
-        WARNING(
+        WARNING.create(
             `@ config.prefix "${PACK.prefix}" is not recommended`,
             `Use one of the following characters:`,
             suggestedPrefixDefinitions.map((x) => `\n|     ${x}`).join(''),
         )
     }
     if(!PACK.intents || PACK.intents.length === 0){
-        WARNING(
+        WARNING.create(
             '@ config',
             'Command intents should be set explicitly.',
             'The default of ["GUILDS"] will be used.'
@@ -172,7 +172,7 @@ export const prepPackConfig = (PACK:any) => {
         `|`,
         `| COMMANDS: ${Object.entries(PACK.commands).length}`,
         `${Object.entries(PACK.commands).map((cmd, i) => 
-            `|   (${i+1}) ${typeof cmd[1] === 'function' ? PACK.prefix : '/'}${cmd[0]}`).join('\n')
+            `|   ${(i+1) < 10 ? `(${i+1}) ` : `(${i+1})`} ${typeof cmd[1] === 'function' ? PACK.prefix : '/'}${cmd[0]}`).join('\n')
         }`,
         `|`,
     )
@@ -192,7 +192,7 @@ export const prepSlashCommand = (PACK, commandName, commandObject) => {
         )
     }
     if(commandName.length > 20 ){
-        WARNING(
+        WARNING.create(
             `@ command "${commandName}"`,
             `Command names should be 20 characters or fewer`,
         )
@@ -208,7 +208,7 @@ export const prepSlashCommand = (PACK, commandName, commandObject) => {
         )
     }
     if(!commandObject.description){
-        WARNING(
+        WARNING.create(
             `@ command "${commandName}"`,
             `Missing field "description"`,
             '',
@@ -218,7 +218,7 @@ export const prepSlashCommand = (PACK, commandName, commandObject) => {
             `Displayed in slash command menu and "${PACK.prefix || '/'}help" message`
         )
     }else if(commandObject.description.trim().length <=3 ){
-        WARNING(
+        WARNING.create(
             `@ command "${commandName}"`,
             `Field "description" must be at least 4 characters`,
             '',
@@ -240,7 +240,7 @@ export const prepPrefixCommand = (PACK, commandName, commandObject) => {
         )
     }
     if(commandName.length > 20 ){
-        WARNING(
+        WARNING.create(
             `@ command "${commandName}"`,
             `Command names should be 20 characters or fewer`,
         )
@@ -277,7 +277,7 @@ export const prepPackCommandOption = (PACK, packCommand, packCommandOption, pack
         )
     }
     if(!packCommandOption.description){
-        WARNING(
+        WARNING.create(
             `@ command "${packCommand.name}" option [${packCommandOptionIndex}]`,
             `Missing field "desciption"`,
             '',
@@ -288,7 +288,7 @@ export const prepPackCommandOption = (PACK, packCommand, packCommandOption, pack
             `Displayed in slash command menu and ${PACK.prefix || '!'}help message`
         )
     }else if(packCommandOption.description.trim().length <=3 ){
-        WARNING(
+        WARNING.create(
             `@ command "${packCommand.name}" option [${packCommandOptionIndex}]`,
             `Field "description" must be at least 4 characters`,
             '',

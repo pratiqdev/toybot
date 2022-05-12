@@ -1,5 +1,5 @@
-import utilities from "./utilities.js";
 import { catchCommand } from "./catchCommand.js";
+import utilities from './utilities.js'
 
 export const handleMessage = (PACK, message) => {
 

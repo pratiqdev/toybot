@@ -1,6 +1,6 @@
 import { WARNING, LOG, DEBUG } from "./logItems.js";
-import utilities from './utilities.js'
 import { catchCommand } from './catchCommand.js'
+import utilities from './utilities.js'
 
 export const handleInteraction = (PACK, interaction) => {
     if (!interaction.isCommand()) return;

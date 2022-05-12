@@ -6,18 +6,21 @@ export const catchCommand = async (PACK, ctx, cmd) => {
     }catch(err){
 
         let errStr = JSON.stringify(err)
-        WARNING(
+        WARNING.create(
             'ERROR (START)---------------------------------------------',
             errStr,
             'ERROR (END)-----------------------------------------------',
         )
 
         if(PACK.testMode){
+            DEBUG('--- catchCommand | testMode')
             if(ctx.deferred || ctx.replied){
+                DEBUG('--- catchCommand | testMode | deferred/replied')
                 ctx.editReply(
                     `Command Error:\n\`\`\`${ctx.commandName || ctx.command} \n\n${errStr}\`\`\``
-                )
-            }else{
+                    )
+                }else{
+                    DEBUG('--- catchCommand | testMode | reply')
                 ctx.reply(
                     `Command Error:\n\`\`\`${ctx.commandName || ctx.command} \n\n${errStr}\`\`\``
                 )

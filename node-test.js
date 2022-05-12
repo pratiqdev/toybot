@@ -1,6 +1,5 @@
-import axios from 'axios'
+const str = `My Cool Bot   `
 
-console.log('axios get:')
+const command = str.toLowerCase().trim().replace(/\s+/g, '-')
 
-let { data } = await axios.get('https://jsonplaceholder.typicode.com/todos')
-console.log(data)
+console.log(`"${command}"`)
