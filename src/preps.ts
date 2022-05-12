@@ -185,7 +185,6 @@ export const prepPackConfig = (PACK:any) => {
 
 
 export const prepSlashCommand = (PACK, commandName, commandObject) => {
-    console.log('---prepping slash commands')
     if(commandName.length > 32 ){
         FATAL(
             `@ command "${commandName}"`,

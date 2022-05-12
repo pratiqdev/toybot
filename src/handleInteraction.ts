@@ -1,11 +1,11 @@
-import { WARNING, LOG } from "./logItems.js";
+import { WARNING, LOG, DEBUG } from "./logItems.js";
 import utilities from './utilities.js'
 import { catchCommand } from './catchCommand.js'
 
 export const handleInteraction = (PACK, interaction) => {
     if (!interaction.isCommand()) return;
 
-    console.log(`Run interaction command: ${interaction.commandName}`)
+    DEBUG(`Run interaction command: ${interaction.commandName}`)
 
 
     if(interaction.commandName in PACK.commands){
@@ -13,7 +13,7 @@ export const handleInteraction = (PACK, interaction) => {
         const config = { ...PACK }
         config.commands = Object.entries(PACK.commands).length
         interaction.config  = config
-        interaction.util = utilities
+        interaction.utils = utilities
         interaction.values = {}
         interaction.options._hoistedOptions.forEach((opt: any) => {
             interaction.values[opt.name] = opt.value
@@ -42,7 +42,7 @@ export const handleInteraction = (PACK, interaction) => {
                 }
             })
             if(ALLOWED){
-                console.log(`Run command: ${CURRENT_COMMAND}`)
+                DEBUG(`Run command: ${CURRENT_COMMAND}`)
                 catchCommand(PACK, interaction, CURRENT_COMMAND.command)
                 // CURRENT_COMMAND.command(interaction)
             }else{

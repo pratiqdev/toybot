@@ -1,17 +1,12 @@
 # ToyBot
 
-Create a discord bot the easy way.
-
-
-## Simple.
-
-
-Setup basic prefix commands or use slash commands to provide more options, 
-details and better default help messages.
+Create a discord bot the easy way. Setup basic prefix commands or use slash 
+commands to provide more options, details and better default help messages.
 
 
 
 
+--------------------------------------------------------------------------------
 ## Installation
 
 yarn
@@ -25,10 +20,11 @@ $ npm install toybot
 ```
 
 
+--------------------------------------------------------------------------------
 
 
 
-## Setup
+## Token
 
 Discord requires a token to access the bot API. Create an environment
 variable with the name `BOT_TOKEN`
@@ -38,6 +34,7 @@ BOT_TOKEN=000000000000000000000000000000000
 
 
 
+--------------------------------------------------------------------------------
 
 
 ## Usage
@@ -54,6 +51,7 @@ guild   | string | The guild (server) id
 client  | string | The client id
 intents | string[] | An array of permissions
 commands | object | An object containing the commands
+testMode | boolean | Set to true to catch and log errors and results to the console
 
 
 index.js
@@ -81,30 +79,10 @@ toybot({
 
 
 
-## Available Intents
-
-
-- GUILDS
-- GUILD_MEMBERS
-- GUILD_BANS
-- GUILD_EMOJIS_AND_STICKERS
-- GUILD_INTEGRATIONS
-- GUILD_WEBHOOKS
-- GUILD_INVITES
-- GUILD_VOICE_STATES
-- GUILD_PRESENCES
-- GUILD_MESSAGES,
-- GUILD_MESSAGE_REACTIONS
-- GUILD_MESSAGE_TYPING
-- DIRECT_MESSAGES,
-- DIRECT_MESSAGE_REACTIONS
-- DIRECT_MESSAGE_TYPING
-- GUILD_SCHEDULED_EVENTS
 
 
 
-
-
+--------------------------------------------------------------------------------
 
 ## Commands
 
@@ -168,10 +146,34 @@ commands: {
 ```
 
 
-## Message return object
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+## Message
+
+### Command Definition
 
 ```js
-'some-command': (obj) => { console.log(obj) }
+'some-command': (ctx) => { console.log(ctx) }
+```
+
+### Command Invocation
+
+```
+!some-command
+```
+
+### Message Context Object
+
+```js
 
 <ref *1> Message {
   channelId: '01234567890123456789',
@@ -225,6 +227,22 @@ commands: {
 ```
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+
 ## Interaction
 
 ### Command Definition
@@ -244,10 +262,14 @@ commands: {
 ```
 
 ### Command Invocation
+
 ```
 /some-command [someArg: xyz]
+```
 
+### Command Context Object
 
+```js
 CommandInteraction {
   type: 'APPLICATION_COMMAND',
   id: '123456789123456789',
@@ -355,3 +377,109 @@ CommandInteraction {
   }
 }
 ```
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+## Available Intents
+
+- GUILDS
+- GUILD_MEMBERS
+- GUILD_BANS
+- GUILD_EMOJIS_AND_STICKERS
+- GUILD_INTEGRATIONS
+- GUILD_WEBHOOKS
+- GUILD_INVITES
+- GUILD_VOICE_STATES
+- GUILD_PRESENCES
+- GUILD_MESSAGES,
+- GUILD_MESSAGE_REACTIONS
+- GUILD_MESSAGE_TYPING
+- DIRECT_MESSAGES,
+- DIRECT_MESSAGE_REACTIONS
+- DIRECT_MESSAGE_TYPING
+- GUILD_SCHEDULED_EVENTS
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+## Utilities
+
+ToyBot inserts utility functions into the context object for messages and interactions.
+The utilities include:
+
+- `MessageEmbed` - from Discordjs
+- `wait` - simple promise based timeout
+- `store` - basic json based key:value store (not persistent)
+
+
+
+
+### Message Embed
+
+
+
+
+
+
+
+
+### Wait
+
+A simple promise based timeout function to add delays between execution of commands
+with a default of 1000ms. Must be used with async/await.
+
+```js
+'do-stuff': async (ctx) => {
+  await ctx.deferReply('Lets wait a sec...')
+  await ctx.utils.wait()
+  await ctx.editReply('Okay thats long enough')
+}
+```
+
+
+
+
+
+
+### Store
+
+A stateful class that provides methods for interacting with the key:value store.
+
+| Method | Description |
+|:--|:--|
+`set(key, value)`  | Create a key and assign a value if the key does not already exist
+`get(key)` | Get a value by its key
+`update(key, value)` | Update the value of a key if the key exists
+`remove(key)` | Delete a key:value by its key
+`getAll()` | Return the entire store object. Useful for parsing nested values.
+
+**Commands**
+
+The store comes with built-in commands for uploading a `.json` file to set the 
+state of the store or set a key:value where the value is the data from the file.
+Bot names in the command must be lowercase
+
+| Command | Attachment | Description |
+|:--|:--|:--|
+!botname-fill-store | .json | Set the store state to the data from the attached json file
+!botname-set-store&nbsp;keyName | .json | Set or update a key with the value of the attached json file
+!botname-empty-store |  | Set the state of the store to an empty object

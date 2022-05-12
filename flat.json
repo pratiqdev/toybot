@@ -1,3 +1,13 @@
 {
-    "some-data":"ayooo"
+    "some-data":"ayooo",
+    "other-data": "bops",
+    "arrayData": [
+        "one",
+        "two",
+        "three",
+        "four"
+    ],
+    "nested":{
+        "thang": "big-thang"
+    }
 }

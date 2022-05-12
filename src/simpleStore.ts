@@ -17,7 +17,7 @@ export class SimpleStore {
      * Set a value if it does not exist
      */
     set(key: string, value: any) {
-        return new Promise((res, rej)=>{
+        return new Promise((res)=>{
             if(!(key in this.store)){
                 this.store[key] = value
                 res({
@@ -26,7 +26,7 @@ export class SimpleStore {
                     value: null,
                 })
             }else{
-                rej({
+                res({
                     success: false,
                     message: `Key "${key}" already exists`,
                     value: null
@@ -40,7 +40,7 @@ export class SimpleStore {
      * Update a value if it exists
      */
     update(key: string, value: any) {
-        return new Promise((res, rej)=>{
+        return new Promise((res)=>{
             if(key in this.store){
                 this.store[key] = value
                 res({
@@ -49,7 +49,7 @@ export class SimpleStore {
                     value: null,
                 })
             }else{
-                rej({
+                res({
                     success: false,
                     message: `Key "${key}" not found`,
                     value: null
@@ -63,15 +63,15 @@ export class SimpleStore {
      * Get and return a value if it exists
      */
     get(key: string) {
-        return new Promise((res, rej)=>{
-            if(key in this.store){
+        return new Promise((res)=>{
+            if(key in this.store && typeof this.store[key] !== 'undefined'){
                 res({
                     success: true,
                     message: `Get key "${key}"`,
                     value: this.store[key]
                 })
             }else{
-                rej({
+                res({
                     success: false,
                     message: `Key "${key}" not found`,
                     value: null
@@ -87,7 +87,7 @@ export class SimpleStore {
      * Get and return a value if it exists
      */
     remove(key: string) {
-        return new Promise((res, rej)=>{
+        return new Promise((res)=>{
             if(key in this.store){
                 delete this.store[key]
                 res({
@@ -96,7 +96,7 @@ export class SimpleStore {
                     value: null
                 })
             }else{
-                rej({
+                res({
                     success: false,
                     message: `Key "${key}" not found`,
                     value: null
@@ -107,10 +107,10 @@ export class SimpleStore {
 
 
     fillStore(newStore: object){
-        return new Promise((res, rej)=>{
+        return new Promise((res)=>{
             // make sure the new store is an object and not an array
             if(Array.isArray(newStore) || typeof newStore !== 'object'){
-                rej({
+                res({
                     success: false,
                     message: `New store must be an object`,
                     value: null
@@ -124,7 +124,7 @@ export class SimpleStore {
                         value: null // should i return the new store so user can compare if they want?
                     })
                 }else{
-                    rej({
+                    res({
                         success: false,
                         message: 'Error creating store',
                         value: null
@@ -134,8 +134,36 @@ export class SimpleStore {
         })
     }
 
+    setStore(key:string, newStore: object){
+        return new Promise((res)=>{
+            // make sure the new store is an object and not an array
+            if(Array.isArray(newStore) || typeof newStore !== 'object'){
+                res({
+                    success: false,
+                    message: `New store must be an object`,
+                    value: null
+                })
+            }else{
+                this.store[key] = newStore
+                if(JSON.stringify(this.store) === JSON.stringify(newStore)){
+                    res({
+                        success: true,
+                        message: `Store key ${key} set from file`,
+                        value: null // should i return the new store so user can compare if they want?
+                    })
+                }else{
+                    res({
+                        success: false,
+                        message: 'Error setting key from file',
+                        value: null
+                    })
+                }
+            }
+        })
+    }
+
     emptyStore(object: object){
-        return new Promise((res, rej)=>{
+        return new Promise((res)=>{
             this.store = {}
             if(JSON.stringify(this.store) === '{}'){
                 res({
@@ -144,7 +172,7 @@ export class SimpleStore {
                     value: null
                 })
             }else{
-                rej({
+                res({
                     success: false,
                     message: `Could not empty store`,
                     value: null
@@ -156,8 +184,8 @@ export class SimpleStore {
     /** 
      * Get and return the entire store
      */
-    getAll(key: string) {
-        return new Promise((res, rej)=>{
+    getAll() {
+        return new Promise((res)=>{
             res({
                 success: true,
                 message: `Get store`,

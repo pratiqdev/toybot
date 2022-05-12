@@ -2,6 +2,7 @@
 
 ## Urgent
 
+- commands that use `bot.title.toLowerCase()` should have spaces replaced with hyphens
   
 - store WARNINGs in array that can be looped over when setup is done. 
   show warnings then success log

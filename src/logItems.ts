@@ -53,7 +53,7 @@ class LogItems{
 
     t = () => ("\x1b[2m" + "|  ".repeat(this.indentWidth) + colors.reset);
     str = (x: any) => (typeof x == "string" ? x : JSON.stringify(x, null, 2));
-    indent = () => this.indentWidth++;
+                indent = () => this.indentWidth++;
     outdent = () => this.indentWidth--;
     setIndent = (n: number) => (n ? (this.indentWidth = n) : (this.indentWidth = 0));
     setDivWidth = (n: number) => (n ? (this.divWidth = n) : (this.divWidth = this.defaultDivWidth));
@@ -74,6 +74,8 @@ class LogItems{
     blue = (x:any) =>   console.log(this.t() + colors.cyan, this.str(x) !== 'undefined' ? this.str(x) : '', colors.reset);
     white = (x:any) =>  console.log(this.t() + colors.white, this.str(x) !== 'undefined' ? this.str(x) : '', colors.reset);
     grey = (x:any) =>   console.log(this.t() + colors.grey, this.str(x) !== 'undefined' ? this.str(x) : '', colors.reset);
+    purple = (x:any) =>   console.log(this.t() + colors.magenta, this.str(x) !== 'undefined' ? this.str(x) : '', colors.reset);
+    PURPLE = (x:any) =>   console.log(this.t() + colors.MAGENTA, this.str(x) !== 'undefined' ? this.str(x) : '', colors.reset);
 
     RED = (x:any) =>    console.log(this.t() + colors.RED, this.str(x) !== 'undefined' ? this.str(x) : '', colors.reset);
     GREEN = (x:any) =>  console.log(this.t() + colors.GREEN, this.str(x) !== 'undefined' ? this.str(x) : '', colors.reset);
@@ -131,6 +133,11 @@ export const FATAL = (...msg:any) => {
 
 export const LOG = (...msg:any) => {
     msg.forEach((x:string) => items.BLUE(x))
+}
+
+export const DEBUG_MODE = false
+export const DEBUG = (...msg:any) => {
+    DEBUG_MODE && msg.forEach((x:string) => items.PURPLE(x))
 }
 
 export const DOCUMENTATION_LINK = 'https://www.npmjs.com/package/toybot'
