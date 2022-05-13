@@ -1,7 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import {WARNING, FATAL, LOG, DOCUMENTATION_LINK} from './logItems.js'
+import {DEBUG, WARNING, FATAL, LOG, DOCUMENTATION_LINK} from './logItems.js'
 
 export const prepPackConfig = (PACK:any) => {
+    const hasAnyPrefixCommands = () => Object.entries(PACK.commands).some(x => typeof x[1] === 'function')
+
     const validConfigDirective = [
         '',
         `config = {`,
@@ -52,8 +54,8 @@ export const prepPackConfig = (PACK:any) => {
             `Discord requires a "bot token" to interact with its API`,
             '',
             'This token should be set as an env var (BOT_TOKEN = xxxx)',
-            `Be sure to add this token to .gitignore / .npmignore to prevent`,
-            `unauthorized users from using this token`
+            `Be sure to add this token to .gitignore / .npmignore to `,
+            `prevent unauthorized use of this bot.`
         )
     }
 
@@ -91,39 +93,68 @@ export const prepPackConfig = (PACK:any) => {
 
     // validate prefix
     if(!PACK.prefix){
-        WARNING.create(
-            `No command prefix (prefix) was provided`,
-            ...validConfigDirective
-        )
-    }
-    else if(disallowedPrefixList.includes(PACK.prefix)){
-        FATAL(
-            `@ config.prefix "${PACK.prefix}" is not allowed`,
-            'The following characters are not allowed:',
-            disallowedPrefixDefenitions.map((x) => `\n|     ${x}`).join(''),
-            '',
-            `Use one of the following characters:`,
-            suggestedPrefixDefinitions.map((x) => `\n|     ${x}`).join(''),
+        if(hasAnyPrefixCommands()){
+            WARNING.create(
+                `No command prefix (prefix) was provided.`,
+                `Prefix commands will use default '!' prefix.`,
+                ...validConfigDirective
+            )
+        }
+    }else{
+        if(PACK.prefix.length > 3){
+            FATAL(
+                `@ config.prefix "${PACK.prefix}" is too long`,
+                'The prefix must be 3 characters or fewer.',
 
-        )
+            )
+        }else if(PACK.prefix.length > 1){
+            WARNING.create(
+                `@ config.prefix "${PACK.prefix}" is too long`,
+                'The prefix should only use a single character.',
+            )
+        }
+        if(disallowedPrefixList.includes(PACK.prefix)){
+            FATAL(
+                `@ config.prefix "${PACK.prefix}" is not allowed`,
+                'The following characters are not allowed:',
+                disallowedPrefixDefenitions.map((x) => `\n|     ${x}`).join(''),
+                '',
+                `Use one of the following characters:`,
+                suggestedPrefixDefinitions.map((x) => `\n|     ${x}`).join(''),
+
+            )
+        }
+        else if(!suggestedPrefixList.includes(PACK.prefix)){
+            WARNING.create(
+                `@ config.prefix "${PACK.prefix}" is not recommended`,
+                `Use one of the following characters:`,
+                suggestedPrefixDefinitions.map((x) => `\n|     ${x}`).join(''),
+            )
+        }
     }
-    else if(!suggestedPrefixList.includes(PACK.prefix)){
-        WARNING.create(
-            `@ config.prefix "${PACK.prefix}" is not recommended`,
-            `Use one of the following characters:`,
-            suggestedPrefixDefinitions.map((x) => `\n|     ${x}`).join(''),
-        )
-    }
-    if(!PACK.intents || PACK.intents.length === 0){
-        WARNING.create(
-            '@ config',
-            'Command intents should be set explicitly.',
-            'The default of ["GUILDS"] will be used.'
-        )
-        PACK.intents = ['GUILD']
-    }
+
+
+
 
     // validate intents
+    if(!PACK.intents || PACK.intents.length === 0){
+        // check if commands uses a basic prefix command
+        if(hasAnyPrefixCommands()){
+            WARNING.create(
+                '@ config.intents',
+                'Command intents should be set explicitly.',
+                '',
+                'Prefix commands require the minimum of',
+                '"GUILD_MESSAGES" and "GUILDS" intent.',
+                '',
+                '["GUILD_MESSAGES", "GUILDS"] will be assigned.'
+            )
+            PACK.intents = ['GUILD_MESSAGES', 'GUILDS']
+        }else{
+            PACK.intents = []
+        }
+    }
+
     else if(PACK.intents.length > 0){
         let validIntents = [
             'GUILDS',
@@ -158,13 +189,13 @@ export const prepPackConfig = (PACK:any) => {
                 )
             }
         })
+
     }
 
 
     LOG(
         `| TITLE:    ${PACK.title}`,
-        // `| DESCRIPTION: ${PACK.description}`,
-        `| CLIENT:   ${PACK.client}`,
+        `| DESCRIPTION: ${PACK.description}`,
         `| CLIENT:   ${PACK.client}`,
         `| GUILD:    ${PACK.guild}`,
         PACK.prefix ? `| PREFIX:   ${PACK.prefix}` : ``,
@@ -233,6 +264,7 @@ export const prepSlashCommand = (PACK, commandName, commandObject) => {
 
 
 export const prepPrefixCommand = (PACK, commandName, commandObject) => {
+    DEBUG(`STEP 2 (c/${commandName}) - Prepping prefix command`)
     if(commandName.length > 32 ){
         FATAL(
             `@ command "${commandName}"`,
@@ -260,6 +292,7 @@ export const prepPrefixCommand = (PACK, commandName, commandObject) => {
 
 
 export const prepPackCommandOption = (PACK, packCommand, packCommandOption, packCommandOptionIndex) => {
+    DEBUG(`STEP 2 (c/${packCommand.name}) - Prepping slash command option: ${packCommandOption}`)
     if(!packCommandOption.name){
         FATAL(
             `@ command "${packCommand.name}" option [${packCommandOptionIndex}]`,
@@ -279,7 +312,7 @@ export const prepPackCommandOption = (PACK, packCommand, packCommandOption, pack
     if(!packCommandOption.description){
         WARNING.create(
             `@ command "${packCommand.name}" option [${packCommandOptionIndex}]`,
-            `Missing field "desciption"`,
+            `Missing field "description"`,
             '',
             `Slash command options should contain a short`,
             `description to help the user understand the`,

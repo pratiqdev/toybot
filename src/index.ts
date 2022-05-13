@@ -24,10 +24,12 @@ dotenv.config()
 const toybot = (PACK: TYPES.I_ToybotConfig) => {
     try{
 
+        
+        
         LOG(
             div,
-            '| ToyBot: Creating bot...',
-            '|'
+            `| ToyBot: Creating bot${PACK.testMode ? ' in test mode' : ''}...`,
+            '|',
         )
 
         prepPackConfig(PACK)
@@ -77,35 +79,38 @@ const toybot = (PACK: TYPES.I_ToybotConfig) => {
                 DEBUG('STEP 2 - generate pack commands')
 
                     Object.entries(PACK.commands).forEach(async (packCommand: any, packCommandIndex: number) => {
+                        DEBUG('STEP 2 (a) - Looping through PACK.commands object')
                         let commandName = packCommand[0]
                         let commandObject = packCommand[1]
                         
                         
                         if(typeof commandObject === 'function'){
                             prepPrefixCommand(PACK, commandName, commandObject)
-                            // log.green(`prefix: ${commandName}`)
                             
                         }else{
+                            DEBUG(`STEP 2 (b/${packCommandIndex}) - Prepping slash type command: ${commandName}`)
                             prepSlashCommand(PACK, commandName, commandObject)
-            
+                            
                             const SLASH_COMMAND = new SlashCommandBuilder()
             
                             SLASH_COMMAND.setName(commandName)
                             SLASH_COMMAND.setDescription(commandObject.description || commandName)
             
             
-                                commandObject.options && commandObject.options.forEach((packCommandOption: TYPES.I_CommandOption, packCommandOptionIndex:number) => {
-                                    prepPackCommandOption(PACK, packCommand, packCommandOption, packCommandOptionIndex)
-                                    generateSlashCommandOptions(SLASH_COMMAND, commandName, packCommandOption)
-                                })
+                            commandObject.options && commandObject.options.forEach((packCommandOption: TYPES.I_CommandOption, packCommandOptionIndex:number) => {
+                                // DEBUG(`STEP 2 (c/${packCommandIndex}) - Prepping slash command option: ${packCommandOption}`)
+                                prepPackCommandOption(PACK, packCommand, packCommandOption, packCommandOptionIndex)
+                                generateSlashCommandOptions(SLASH_COMMAND, commandName, packCommandOption)
+                            })
                             
-            
+                            
                             try{
                                 SLASH_COMMAND.toJSON()
                                 commands.push(SLASH_COMMAND)
                             }catch(err){
                                 FATAL('ERROR PUSHING SLASH COMMANDS')
                             }finally{
+                                DEBUG(`STEP 2 (c/${packCommandIndex}) - Pushed slash command to commands array`)
                                 res('')
                             }
                             
@@ -113,6 +118,8 @@ const toybot = (PACK: TYPES.I_ToybotConfig) => {
             
                         }
                     })
+
+                    res('')
 
                 })
             }

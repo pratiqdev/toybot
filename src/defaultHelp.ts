@@ -31,12 +31,7 @@ const parseType = (type:string) => {
 export const assembleDefaultHelpMessage = (PACK) => {
     
     let helpMsg = ''
-    let startBQ = ">>> "
-    let endBQ = "\n\n\n\n"
-    let BI = "**`"
-    let IB = "`**"
     let N = "\r\n"
-    let T = "     "
 
     let commandArray = []
     let slashCommands = []
@@ -45,8 +40,7 @@ export const assembleDefaultHelpMessage = (PACK) => {
 
     helpMsg += `__**${PACK.title} - help**__` 
     + N 
-    + `${PACK.documentation ? PACK.documentation : '' }`
-    + N 
+    + `${PACK.documentation ? PACK.documentation + N : '' }`
     + `*${PACK.description}*` 
     + N
     + N
