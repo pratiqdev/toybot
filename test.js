@@ -2,7 +2,7 @@
 // import { WARNING, LOG, DEBUG } from './dist/logItems.js'
 
 import toybot from './index.js'
-
+import axios from 'axios'
 
 
 
@@ -239,7 +239,7 @@ toybot({
                 await ctx.deferReply()
                 await ctx.utils.delay(1000)
 
-                let { data } = await ctx.util.get('https://jsonplaceholder.typicode.com/todos')
+                let { data } = await axios.get('https://jsonplaceholder.typicode.com/todos')
 
                 
 

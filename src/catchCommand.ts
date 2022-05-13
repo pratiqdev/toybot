@@ -1,14 +1,14 @@
-import { DEBUG, WARNING } from "./logItems.js"
+import { DEBUG, WARNING, WARN_NOW } from "./logItems.js"
 
 export const catchCommand = async (PACK, ctx, cmd) => {
     try{
         await cmd(ctx)
     }catch(err){
 
-        let errStr = JSON.stringify(err)
-        WARNING.create(
+        WARN_NOW(
             'ERROR (START)---------------------------------------------',
-            errStr,
+            `type: ${typeof err}`,
+            err,
             'ERROR (END)-----------------------------------------------',
         )
 
@@ -17,12 +17,12 @@ export const catchCommand = async (PACK, ctx, cmd) => {
             if(ctx.deferred || ctx.replied){
                 DEBUG('--- catchCommand | testMode | deferred/replied')
                 ctx.editReply(
-                    `Command Error:\n\`\`\`${ctx.commandName || ctx.command} \n\n${errStr}\`\`\``
+                    `Command Error:\n\`\`\`${ctx.commandName || ctx.command} \n\n${err}\`\`\``
                     )
                 }else{
                     DEBUG('--- catchCommand | testMode | reply')
                 ctx.reply(
-                    `Command Error:\n\`\`\`${ctx.commandName || ctx.command} \n\n${errStr}\`\`\``
+                    `Command Error:\n\`\`\`${ctx.commandName || ctx.command} \n\n${err}\`\`\``
                 )
             }
         }

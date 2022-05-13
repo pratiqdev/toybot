@@ -9,9 +9,9 @@ import * as TYPES from './types.js'
 import { div, WARNING, FATAL, LOG, DEBUG } from './logItems.js'
 import { prepPackConfig, prepPackCommandOption, prepPrefixCommand, prepSlashCommand } from './preps.js'
 import { generateSlashCommandOptions } from './slashOptions.js'
+import { assembleDefaultHelpMessage } from './defaultHelp.js'
 import { handleMessage } from './handleMessage.js'
 import { handleInteraction } from './handleInteraction.js'
-import { assembleDefaultHelpMessage } from './defaultHelp.js'
 
 
 
@@ -26,7 +26,7 @@ const toybot = (PACK: TYPES.I_ToybotConfig) => {
 
         LOG(
             div,
-            '| ToyBot starting...',
+            '| ToyBot: Creating bot...',
             '|'
         )
 
@@ -135,9 +135,6 @@ const toybot = (PACK: TYPES.I_ToybotConfig) => {
             await step2_generatePackCommands()
             await step3_registerCommands()
 
-            // log.GREEN(log.div(1))
-            // log.GREEN(`# TOYBOT ACTIVE ${PACK.testMode ? '(TEST MODE)' : ''}`)
-            // log.GREEN(log.div(1))
 
             LOG(
                 '|',
