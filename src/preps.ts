@@ -1,8 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import {DEBUG, WARNING, FATAL, LOG, DOCUMENTATION_LINK} from './logItems.js'
 
+const hasAnyPrefixCommands = (PACK) => PACK.commands && Object.entries(PACK.commands).some(x => typeof x[1] === 'function')
+const hasAnySlashCommands = (PACK) => PACK.commands && Object.entries(PACK.commands).some(x => typeof x[1] === 'object')
+
 export const prepPackConfig = (PACK:any) => {
-    const hasAnyPrefixCommands = () => Object.entries(PACK.commands).some(x => typeof x[1] === 'function')
 
     const validConfigDirective = [
         '',
@@ -13,7 +15,11 @@ export const prepPackConfig = (PACK:any) => {
         `   guild:       '1234'`,
         `   client:      '4567'`,
         `   commands: [`,
-        `     ...`,
+        `     'do-thing': ctx => {},`,
+        `     'do-more': {`,
+        `        description: 'Does more'`,
+        `        command: ctx => {}`,
+        `     },`,
         `   ]`,
         `}`,
         '',
@@ -93,14 +99,16 @@ export const prepPackConfig = (PACK:any) => {
 
     // validate prefix
     if(!PACK.prefix){
-        if(hasAnyPrefixCommands()){
+        if(hasAnyPrefixCommands(PACK) && PACK.testMode){
             WARNING.create(
                 `No command prefix (prefix) was provided.`,
                 `Prefix commands will use default '!' prefix.`,
                 ...validConfigDirective
             )
         }
-    }else{
+        PACK.prefix = '!'
+    }
+    else{
         if(PACK.prefix.length > 3){
             FATAL(
                 `@ config.prefix "${PACK.prefix}" is too long`,
@@ -139,12 +147,12 @@ export const prepPackConfig = (PACK:any) => {
     // validate intents
     if(!PACK.intents || PACK.intents.length === 0){
         // check if commands uses a basic prefix command
-        if(hasAnyPrefixCommands()){
+        if(hasAnyPrefixCommands(PACK)){
             WARNING.create(
                 '@ config.intents',
                 'Command intents should be set explicitly.',
                 '',
-                'Prefix commands require the minimum of',
+                'Prefix commands require a minimum of',
                 '"GUILD_MESSAGES" and "GUILDS" intent.',
                 '',
                 '["GUILD_MESSAGES", "GUILDS"] will be assigned.'
@@ -154,7 +162,6 @@ export const prepPackConfig = (PACK:any) => {
             PACK.intents = []
         }
     }
-
     else if(PACK.intents.length > 0){
         let validIntents = [
             'GUILDS',
@@ -193,9 +200,25 @@ export const prepPackConfig = (PACK:any) => {
     }
 
 
+
+    // validate commands object
+    if(!PACK.commands || typeof PACK.commands !== 'object'){
+        FATAL(
+            '@ config.commands',
+            'The config must contain an object of commands',
+            ...validConfigDirective
+        )
+    }else if(Object.entries(PACK.commands).length === 0){
+        FATAL(
+            '@ config.commands',
+            'The commands object must contain commands'
+        )
+    }
+
+
     LOG(
         `| TITLE:    ${PACK.title}`,
-        `| DESCRIPTION: ${PACK.description}`,
+        // `| DESCRIPTION: ${PACK.description}`, //! too long, not necessary here
         `| CLIENT:   ${PACK.client}`,
         `| GUILD:    ${PACK.guild}`,
         PACK.prefix ? `| PREFIX:   ${PACK.prefix}` : ``,
@@ -262,7 +285,14 @@ export const prepSlashCommand = (PACK, commandName, commandObject) => {
 }
 
 
-
+/**
+ * Validate prefix command.
+ * Checks for valid name.
+ * 
+ * @param PACK 
+ * @param commandName 
+ * @param commandObject 
+ */
 export const prepPrefixCommand = (PACK, commandName, commandObject) => {
     DEBUG(`STEP 2 (c/${commandName}) - Prepping prefix command`)
     if(commandName.length > 32 ){
@@ -291,6 +321,18 @@ export const prepPrefixCommand = (PACK, commandName, commandObject) => {
 
 
 
+
+
+
+/**
+ * Validate a a single slash command option.
+ * Checks for valid name and description
+
+* @param PACK 
+ * @param packCommand 
+ * @param packCommandOption 
+ * @param packCommandOptionIndex 
+ */
 export const prepPackCommandOption = (PACK, packCommand, packCommandOption, packCommandOptionIndex) => {
     DEBUG(`STEP 2 (c/${packCommand.name}) - Prepping slash command option: ${packCommandOption}`)
     if(!packCommandOption.name){
@@ -335,11 +377,19 @@ export const prepPackCommandOption = (PACK, packCommand, packCommandOption, pack
 }
 
 
-// Help commands should always exist
-// Create a default help command that lists the available commands and options
-// The help command should be a slash command if any other commands use the 
-// slash type, otherwise use a prefix type help command
 
+
+
+
+/**
+ * Help commands should always exist
+ * Create a default help command that lists the available commands and options
+ * The help command should be a slash command if any other commands use the 
+ * slash type, otherwise use a prefix type help command
+ *
+ *  @param PACK 
+ * @param commandsArray 
+ */
 export const prepHelpCommand = (PACK, commandsArray) => {
 
     if(!(
@@ -347,10 +397,8 @@ export const prepHelpCommand = (PACK, commandsArray) => {
         || 'Help' in PACK.commands
         || 'HELP' in PACK.commands
     )){
-        const foundSlashTypeCommand = Object.entries(PACK.commands).some(cmd => typeof cmd[1] !== 'function' )
-        // FATAL(`Found slash type command: ${foundSlashTypeCommand}`)
 
-        if(foundSlashTypeCommand){
+        if(hasAnySlashCommands(PACK)){
             LOG(`| Creating "/help" command...`)
             let SLASH_COMMAND = new SlashCommandBuilder()
             .setName('help')
@@ -363,11 +411,4 @@ export const prepHelpCommand = (PACK, commandsArray) => {
             
         }
     }
-    // else{
-    //     if(PACK.prefix){
-    //         LOG(`| Assigning custom "${PACK.prefix}help" command...`)
-    //     }else{
-    //         LOG(`| Assigning custom "/help" command...`)
-    //     }
-    // }
 }

@@ -2,7 +2,7 @@ import { WARNING, LOG, DEBUG } from "./logItems.js";
 import { catchCommand } from './catchCommand.js'
 import utilities from './utilities.js'
 
-export const handleInteraction = (PACK, interaction) => {
+export const handleInteraction = (PACK, STATS, interaction) => {
     if (!interaction.isCommand()) return;
 
     DEBUG(`Run interaction command: ${interaction.commandName}`)
@@ -14,6 +14,7 @@ export const handleInteraction = (PACK, interaction) => {
         config.commands = Object.entries(PACK.commands).length
         interaction.config  = config
         interaction.utils = utilities
+        interaction.stats = STATS
         interaction.values = {}
         interaction.options._hoistedOptions.forEach((opt: any) => {
             interaction.values[opt.name] = opt.value
@@ -43,6 +44,9 @@ export const handleInteraction = (PACK, interaction) => {
             })
             if(ALLOWED){
                 DEBUG(`Run command: ${CURRENT_COMMAND}`)
+                STATS.commandsUsed++
+                STATS.commands[CURRENT_COMMAND]++
+                STATS.upTime = Date.now() - STATS.startTime
                 catchCommand(PACK, interaction, CURRENT_COMMAND.command)
                 // CURRENT_COMMAND.command(interaction)
             }else{
@@ -51,6 +55,9 @@ export const handleInteraction = (PACK, interaction) => {
         }else{
             // console.log(`NO ROLES REQUIRED: "${interaction.commandName}"`)
             // CURRENT_COMMAND.command(interaction)
+            STATS.commandsUsed++
+            STATS.commands[CURRENT_COMMAND]++
+            STATS.upTime = Date.now() - STATS.startTime
             catchCommand(PACK, interaction, CURRENT_COMMAND.command)
 
         }

@@ -25,7 +25,7 @@ export interface I_ToybotConfig {
     client: string;
     guild: string,
     commands: I_CommandStruct[];
-    commandObj: any;
+    globalCommands: I_CommandStruct[];
     intents?: any[];
     partials?: string[];
     prefix: string;

@@ -1,3 +1,5 @@
+export const DEBUG_MODE = false
+
 export const div = "-".repeat(60)
 
 class WarningCollector {
@@ -37,10 +39,12 @@ export const WARN_NOW = (...msg) => {
 export const WARNING = new WarningCollector()
 
 export const FATAL = (...msg:any) => {
+    DEBUG_MODE && console.error(msg)
+
     console.log('')
     console.log(div)
     console.log('| ERROR:')
-    msg.forEach((x:string) => console.log(`|   ${x}`))
+    msg.forEach((x:string) => console.error(`|   ${x}`))
     console.log(div)
     console.log('')
     process.exit(0)
@@ -50,7 +54,6 @@ export const LOG = (...msg:any) => {
     msg.forEach((x:string) => console.log(x))
 }
 
-export const DEBUG_MODE = false
 export const DEBUG = (...msg:any) => {
     DEBUG_MODE && msg.forEach((x:string) => console.log(x))
 }

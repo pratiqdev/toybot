@@ -23,9 +23,6 @@ dotenv.config()
 
 const toybot = (PACK: TYPES.I_ToybotConfig) => {
     try{
-
-        
-        
         LOG(
             div,
             `| ToyBot: Creating bot${PACK.testMode ? ' in test mode' : ''}...`,
@@ -34,12 +31,21 @@ const toybot = (PACK: TYPES.I_ToybotConfig) => {
 
         prepPackConfig(PACK)
 
+        const STATS:any = {
+            startTime: 0,
+            upTime: 0,
+            commandsUsed: 0,
+            commands: {
+                help: 0,
+            }
+        }
         const client = new Client({ intents: PACK.intents });
         let rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN);
-
+        
         client.once('ready', async () => {
             LOG('| Client ready...')
-            
+            STATS.startTime = Date.now()
+                        
             const commands: any = []
             const globalCommands: any = []
 
@@ -77,17 +83,21 @@ const toybot = (PACK: TYPES.I_ToybotConfig) => {
             const step2_generatePackCommands = () => {
                 return new Promise((res)=>{
                 DEBUG('STEP 2 - generate pack commands')
+                
 
-                    Object.entries(PACK.commands).forEach(async (packCommand: any, packCommandIndex: number) => {
+                    PACK.commands 
+                    && Object.entries(PACK.commands).forEach(async (packCommand: any, packCommandIndex: number) => {
+                        
                         DEBUG('STEP 2 (a) - Looping through PACK.commands object')
                         let commandName = packCommand[0]
                         let commandObject = packCommand[1]
+                        STATS.commands[commandName] = 0
                         
                         
                         if(typeof commandObject === 'function'){
                             prepPrefixCommand(PACK, commandName, commandObject)
                             
-                        }else{
+                        }else if(typeof commandObject === 'object'){
                             DEBUG(`STEP 2 (b/${packCommandIndex}) - Prepping slash type command: ${commandName}`)
                             prepSlashCommand(PACK, commandName, commandObject)
                             
@@ -113,9 +123,67 @@ const toybot = (PACK: TYPES.I_ToybotConfig) => {
                                 DEBUG(`STEP 2 (c/${packCommandIndex}) - Pushed slash command to commands array`)
                                 res('')
                             }
+            
+                        }
+                        else{
+                            FATAL(
+                                'Command objects must be of type function or object.',
+                                `Examples:`,
+                                `'cmd': (ctx) => {} `,
+                                `'cmd': {} `,
+                            )
+                        }
+                    })
+
+
+
+                    PACK.globalCommands 
+                    && Object.entries(PACK.globalCommands).forEach(async (packCommand: any, packCommandIndex: number) => {
+                        
+                        DEBUG('STEP 2 (a) - Looping through PACK.commands object')
+                        let commandName = packCommand[0]
+                        let commandObject = packCommand[1]
+                        STATS.commands[commandName] = 0
+                        
+                        
+                        if(typeof commandObject === 'function'){
+                            prepPrefixCommand(PACK, commandName, commandObject)
                             
+                        }else if(typeof commandObject === 'object'){
+                            DEBUG(`STEP 2 (b/${packCommandIndex}) - Prepping slash type command: ${commandName}`)
+                            prepSlashCommand(PACK, commandName, commandObject)
+                            
+                            const SLASH_COMMAND = new SlashCommandBuilder()
+            
+                            SLASH_COMMAND.setName(commandName)
+                            SLASH_COMMAND.setDescription(commandObject.description || commandName)
             
             
+                            commandObject.options && commandObject.options.forEach((packCommandOption: TYPES.I_CommandOption, packCommandOptionIndex:number) => {
+                                // DEBUG(`STEP 2 (c/${packCommandIndex}) - Prepping slash command option: ${packCommandOption}`)
+                                prepPackCommandOption(PACK, packCommand, packCommandOption, packCommandOptionIndex)
+                                generateSlashCommandOptions(SLASH_COMMAND, commandName, packCommandOption)
+                            })
+                            
+                            
+                            try{
+                                SLASH_COMMAND.toJSON()
+                                globalCommands.push(SLASH_COMMAND)
+                            }catch(err){
+                                FATAL('ERROR PUSHING SLASH COMMANDS')
+                            }finally{
+                                DEBUG(`STEP 2 (c/${packCommandIndex}) - Pushed slash command to commands array`)
+                                res('')
+                            }
+            
+                        }
+                        else{
+                            FATAL(
+                                'Command objects must be of type function or object.',
+                                `Examples:`,
+                                `'cmd': (ctx) => {} `,
+                                `'cmd': {} `,
+                            )
                         }
                     })
 
@@ -169,12 +237,12 @@ const toybot = (PACK: TYPES.I_ToybotConfig) => {
             }
             
             // handleStoreUpdate(PACK, message)
-            handleMessage(PACK, message)
+            handleMessage(PACK, STATS, message)
         })
 
         // use the build in slash commands
         client.on('interactionCreate', async (interaction: any) => {
-            handleInteraction(PACK, interaction)
+            handleInteraction(PACK, STATS, interaction)
         });
 
 
