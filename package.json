@@ -1,6 +1,6 @@
 {
   "name": "toybot",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Simplified setup of Discord /slash and !prefix commands",
   "author": "pratiqdev",
   "repository": "github:pratiqdev/toybot",
